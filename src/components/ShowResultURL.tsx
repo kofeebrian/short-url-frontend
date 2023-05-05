@@ -1,19 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import LoadingSpinner from "./shared/LoadingSpinner";
+import { useShortenedURL } from "@/hooks/useShortenedURL";
 
 interface FormData {
   shortenedUrl: string;
 }
 
-const url = "https://url-shortener-service.p.rapidapi.com/shorten";
-
 export default function ShowResultURL() {
   const [showModel, setShowModel] = useState<boolean>(false);
-  const { register, handleSubmit, setValue, reset } = useForm<FormData>();
-  const shortenedUrlInputRef = useRef<HTMLInputElement | null>();
+  const { register, handleSubmit, setValue } = useForm<FormData>();
   const { ref, ...rest } = register("shortenedUrl");
+
+  const shortenedUrlInputRef = useRef<HTMLInputElement | null>();
 
   const onSubmit = handleSubmit((data) => {
     navigator.clipboard.writeText(data?.shortenedUrl);
@@ -23,45 +22,13 @@ export default function ShowResultURL() {
   });
 
   const [targetUrl, _setTargetUrl] = useLocalStorage<string>("url", "");
-
-  const callShortenerAPI = useCallback(
-    async (targetUrl: string) => {
-      if (targetUrl === "") return;
-
-      const encodedParams = new URLSearchParams();
-      console.log(targetUrl);
-      encodedParams.set("url", targetUrl);
-
-      console.log(process.env.RAPIDAPI_TOKEN);
-
-      const options = {
-        method: "POST",
-        url: "https://url-shortener-service.p.rapidapi.com/shorten",
-        headers: {
-          "content-type": "application/x-www-form-urlencoded",
-          "X-RapidAPI-Key": process.env.RAPIDAPI_TOKEN as string,
-          "X-RapidAPI-Host": "url-shortener-service.p.rapidapi.com",
-        },
-        body: encodedParams,
-      };
-
-      try {
-        const response = await fetch(url, options);
-        const result = await response.json();
-        // set input value
-        setValue("shortenedUrl", result?.result_url);
-        console.log(result);
-      } catch (error) {
-        console.error(error);
-        reset();
-      }
-    },
-    [reset, setValue]
-  );
+  const { resultUrl } = useShortenedURL(targetUrl);
 
   useEffect(() => {
-    callShortenerAPI(targetUrl);
-  }, [targetUrl, callShortenerAPI]);
+    if (resultUrl) {
+      setValue("shortenedUrl", resultUrl);
+    }
+  }, [resultUrl, setValue]);
 
   return (
     <>
