@@ -13,28 +13,29 @@ export function useShortenedURL(targetUrl: string) {
     async (targetUrl: string): Promise<void> => {
       if (targetUrl === "") return;
 
-        const token = getAuthToken();
-        const headers = {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        };
+      const token = getAuthToken();
+      const headers = {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      };
 
-        if (token) {
-          console.log(token)
-          headers!.Authorization = `Bearer ${token.replace(/['"]+/g, '')}`;
-        }
+      if (token) {
+        console.log(token);
+        headers!.Authorization = `Bearer ${token.replace(/['"]+/g, "")}`;
+      }
 
-        axios.post(
+      axios
+        .post(
           `${BASE_URL}/shorten`,
           { url: targetUrl },
           {
             headers,
           }
-        ).then((response) => {
-
+        )
+        .then((response) => {
           setResultUrl(response.data.result_url);
-
-        }).catch(async (error: Error | AxiosError) => {
+        })
+        .catch(async (error: Error | AxiosError) => {
           if (axios.isAxiosError(error)) {
             if (error.response?.status === 401) {
               console.log("Unauthorized, generating new token");
@@ -55,23 +56,6 @@ export function useShortenedURL(targetUrl: string) {
             setResultUrl("Something went wrong");
           }
         });
-
-
-      // const options = {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     url: targetUrl,
-      //   }),
-      // };
-
-      // try {
-      //   const response = await fetch(BASE_URL + "/shorten", options);
-      //   const result = await response.json();
-      //   setResultUrl(result.result_url);
-      // } catch (error) {
-      //   console.error(error);
-      //   setResultUrl("Something went wrong");
-      // }
     },
     []
   );
