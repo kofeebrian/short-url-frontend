@@ -1,0 +1,42 @@
+version: "3.4"
+
+networks:
+  frontend:
+  backend:
+  database:
+
+
+services:
+  proxy:
+    container_name: short-url-proxy
+    build: nginx/
+    depends_on:
+      - web
+      - server
+    networks:
+      - frontend
+      - backend
+    restart: always
+
+  web:
+    container_name: short-url-web
+    build: .
+    depends_on:
+      - server
+    networks:
+      - frontend
+
+  server:
+    container_name: short-url-server
+    build: server/
+    depends_on:
+      - db
+    networks:
+      - backend
+      - database
+
+  db:
+    container_name: short-url-db
+    image: mongo:latest
+    networks:
+      - database

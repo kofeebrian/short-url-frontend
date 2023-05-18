@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
   reactStrictMode: false,
   env: {
-    RAPIDAPI_TOKEN: process.env.RAPIDAPI_TOKEN,
+    API_ENDPOINT: process.env.API_ENDPOINT,
   },
 };
 

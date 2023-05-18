@@ -1,0 +1,17 @@
+FROM node:latest AS development
+
+# setup workdir
+WORKDIR /app
+
+# cp package & lock files
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+# apt update & pnpm install dependencies
+RUN \
+  apt update -y && apt upgrade -y && \
+  yarn global add pnpm && \ 
+  pnpm install
+
+ENV NODE_ENV=development
+
+CMD ["pnpm", "run", "dev"]

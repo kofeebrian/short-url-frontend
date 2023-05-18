@@ -1,42 +1,85 @@
+import { getAuthToken, setAuthToken } from "@/utils/auth";
+import axios, { AxiosError } from "axios";
 import { useCallback, useEffect, useState } from "react";
 
-const url = "https://url-shortener-service.p.rapidapi.com/shorten";
+const BASE_URL = process.env.API_ENDPOINT || "http://localhost:8080";
+
+export type ShortenedURL = string;
 
 export function useShortenedURL(targetUrl: string) {
   const [resultUrl, setResultUrl] = useState<string | undefined>("");
-  const callShortenerAPI = useCallback(async (targetUrl: string) => {
-    if (targetUrl === "") return;
 
-    const encodedParams = new URLSearchParams();
-    console.log(targetUrl);
-    encodedParams.set("url", targetUrl);
+  const fetchShortenedUrl = useCallback(
+    async (targetUrl: string): Promise<void> => {
+      if (targetUrl === "") return;
 
-    console.log(process.env.RAPIDAPI_TOKEN);
+        const token = getAuthToken();
+        const headers = {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        };
 
-    const options = {
-      method: "POST",
-      url: "https://url-shortener-service.p.rapidapi.com/shorten",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        "X-RapidAPI-Key": process.env.RAPIDAPI_TOKEN as string,
-        "X-RapidAPI-Host": "url-shortener-service.p.rapidapi.com",
-      },
-      body: encodedParams,
-    };
+        if (token) {
+          console.log(token)
+          headers!.Authorization = `Bearer ${token.replace(/['"]+/g, '')}`;
+        }
 
-    try {
-      const response = await fetch(url, options);
-      const result = await response.json();
-      setResultUrl(result.result_url);
-    } catch (error) {
-      console.error(error);
-      setResultUrl("Something went wrong");
-    }
-  }, []);
+        axios.post(
+          `${BASE_URL}/shorten`,
+          { url: targetUrl },
+          {
+            headers,
+          }
+        ).then((response) => {
+
+          setResultUrl(response.data.result_url);
+
+        }).catch(async (error: Error | AxiosError) => {
+          if (axios.isAxiosError(error)) {
+            if (error.response?.status === 401) {
+              console.log("Unauthorized, generating new token");
+              const newTokenResponse = await axios.get(`${BASE_URL}/token`);
+
+              if (newTokenResponse.status === 200) {
+                const newToken = newTokenResponse.data.token;
+
+                // update the token in local
+                setAuthToken(newToken);
+
+                // Retry the original request with the new token
+                return fetchShortenedUrl(targetUrl);
+              }
+            }
+          } else {
+            console.error(error);
+            setResultUrl("Something went wrong");
+          }
+        });
+
+
+      // const options = {
+      //   method: "POST",
+      //   body: JSON.stringify({
+      //     url: targetUrl,
+      //   }),
+      // };
+
+      // try {
+      //   const response = await fetch(BASE_URL + "/shorten", options);
+      //   const result = await response.json();
+      //   setResultUrl(result.result_url);
+      // } catch (error) {
+      //   console.error(error);
+      //   setResultUrl("Something went wrong");
+      // }
+    },
+    []
+  );
 
   useEffect(() => {
-    callShortenerAPI(targetUrl);
-  }, [targetUrl, callShortenerAPI]);
+    fetchShortenedUrl(targetUrl);
+    return () => {};
+  }, [targetUrl, fetchShortenedUrl]);
 
   return { resultUrl } as const;
 }
