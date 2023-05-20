@@ -1,5 +1,5 @@
 import { getAuthToken, setAuthToken } from "@/utils/auth";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { useCallback, useEffect, useState } from "react";
 
 const BASE_URL = process.env.API_ENDPOINT || "http://localhost:8080";
@@ -14,23 +14,22 @@ export function useShortenedURL(targetUrl: string) {
       if (targetUrl === "") return;
 
       const token = getAuthToken();
-      const headers = {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      };
+      const config: AxiosRequestConfig = { 
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        }
+      }
 
       if (token) {
-        console.log(token);
-        headers!.Authorization = `Bearer ${token.replace(/['"]+/g, "")}`;
+        config.headers!.Authorization = `Bearer ${token.replace(/['"]+/g, "")}`;
       }
 
       axios
         .post(
           `${BASE_URL}/shorten`,
           { url: targetUrl },
-          {
-            headers,
-          }
+          { ...config }
         )
         .then((response) => {
           setResultUrl(response.data.result_url);
