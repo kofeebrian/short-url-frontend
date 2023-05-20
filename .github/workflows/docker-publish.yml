@@ -18,7 +18,7 @@ env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-  PLATFORM  : linux/${{ matrix.arch }}${{ (matrix.variant != '' && format('/{0}', matrix.variant)) || '' }}
+  
 
 jobs:
   build:
@@ -35,6 +35,8 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
+    env:
+      PLATFORM  : linux/${{ matrix.arch }}${{ (matrix.variant != '' && format('/{0}', matrix.variant)) || '' }}
 
     steps:
       - name: Checkout repository
