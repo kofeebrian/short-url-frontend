@@ -32,6 +32,7 @@ services:
     env_file:
       - server/.env
     environment:
+      - MONGO_URI=
       - SERVER_NAME=http://localhost:8080
       - SECRET_KEY=secret
 
