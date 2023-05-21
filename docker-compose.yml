@@ -1,6 +1,7 @@
 version: "3.4"
 
 networks:
+  gateway:
   frontend:
   backend:
   database:
@@ -14,6 +15,7 @@ services:
       - web
       - server
     networks:
+      - gateway
       - frontend
       - backend
     restart: always
