@@ -21,7 +21,7 @@ services:
       - .env
     environment:
       - NODE_ENV=development
-      - API_ENDPOINT=http://localhost:3001/api
+      - API_ENDPOINT=https://mydomain.com/api
 
   server:
     image: ghcr.io/kofeebrian/short-url-backend:main
@@ -36,7 +36,7 @@ services:
       - server/.env
     environment:
       - MONGO_URI=
-      - SERVER_NAME=http://localhost:8080
+      - SERVER_NAME=https://mydomain.com
       - SECRET_KEY=secret
 
   db:
