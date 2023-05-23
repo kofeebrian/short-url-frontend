@@ -47,8 +47,6 @@ jobs:
     - name: Install cosign
       if: github.event_name != 'pull_request'
       uses: sigstore/cosign-installer@main #v2.6.0
-      with:
-        cosign-release: 'v2.0.2'
 
     # Create QEMU VMs
     # To build on multiple platforms
