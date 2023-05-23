@@ -36,3 +36,5 @@ next-env.d.ts
 
 # custom
 data/
+
+k8s/
