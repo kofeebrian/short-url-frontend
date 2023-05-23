@@ -28,7 +28,6 @@ jobs:
         - arch: amd64
         - arch: arm64
           variant: v8
-        - arch: aarch64
     runs-on: ubuntu-latest
     permissions:
       contents: read
