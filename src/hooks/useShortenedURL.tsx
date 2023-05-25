@@ -2,11 +2,10 @@ import { getAuthToken, setAuthToken } from "@/utils/auth";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { useCallback, useEffect, useState } from "react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:8080";
-
-export type ShortenedURL = string;
+const BASE_URL = process.env.NEXT_PUBLIC_API_ENDPOINT as string;
 
 export function useShortenedURL(targetUrl: string) {
+
   const [resultUrl, setResultUrl] = useState<string | undefined>("");
 
   const fetchShortenedUrl = useCallback(
@@ -60,7 +59,10 @@ export function useShortenedURL(targetUrl: string) {
   );
 
   useEffect(() => {
-    fetchShortenedUrl(targetUrl);
+    if (BASE_URL !== undefined && BASE_URL !== "") {
+      fetchShortenedUrl(targetUrl);
+    }
+
     return () => {};
   }, [targetUrl, fetchShortenedUrl]);
 
