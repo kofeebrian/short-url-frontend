@@ -12,26 +12,26 @@ services:
     restart: unless-stopped
 
   web:
-    # image: ghcr.io/kofeebrian/short-url-frontend:main
     build: 
       context: .
-      dockerfile: Dockerfile
-    # ports:
-    #   - 3000:3000
-    # volumes:
-    #   - .:/app
+      dockerfile: Dockerfile.development
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app
+    env_file:
+      - .env.local
 
   server:
-    # image: ghcr.io/kofeebrian/short-url-backend:main
     build:
       context: server/
       dockerfile: Dockerfile
     ports:
       - 8080:8080
-    # volumes:
-    #   - ./server:/app
+    volumes:
+      - ./server:/app
     env_file:
-      - server/.env
+      - server/.env.development.local
 
   db:
     ports:
